@@ -31,11 +31,14 @@ def prepare_script(day):
     if not os.path.isdir(SCRIPTS_DIR):
         os.mkdir(SCRIPTS_DIR)
     
-    fn_input = os.path.join(INPUT_DIR, INPUT_FILE_FORMATTER.format(day=day))
+    fn_input = INPUT_FILE_FORMATTER.format(day=day)
 
     script = dedent(f"""
+    import os
+    import time
+
     def solve():
-        input_file_contents = open("{fn_input}").read()
+        input_file_contents = open(os.path.join("{INPUT_DIR}", "{fn_input}")).read().rstrip()
 
         sol_part1 = None
         print("Part 1:", sol_part1)
@@ -44,18 +47,19 @@ def prepare_script(day):
         print("Part 2:", sol_part2)
 
     if __name__ == "__main__":
+        start = time.time()
         solve()
-    """)
+        print(f"Run time: {{time.time() - start:.3f}}s")
+    """)[1:]
 
     fn_script = os.path.join(SCRIPTS_DIR, SCRIPT_FILE_FORMATTER.format(day=day))
 
     # This here is to avoid ruining the day's work!
     if os.path.exists(fn_script):
         raise ValueError(f"Script {fn_script} already exists!")
-
+    
     with open(fn_script, "w") as f:
        f.write(script) 
-    
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Download input and prepare script for AoC puzzle')
