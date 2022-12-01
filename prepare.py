@@ -37,6 +37,7 @@ def prepare_script(day):
     import os
     import time
 
+
     def solve():
         input_file_contents = open(os.path.join("{INPUT_DIR}", "{fn_input}")).read().rstrip()
 
@@ -45,6 +46,7 @@ def prepare_script(day):
 
         sol_part2 = None
         print("Part 2:", sol_part2)
+
 
     if __name__ == "__main__":
         start = time.time()
@@ -74,4 +76,4 @@ if __name__ == "__main__":
     args = parse_args()
     download_input(args.year, args.day)
     prepare_script(args.day)
-    os.system(f"firefox https://adventofcode.com/{args.year}/day/{args.day}")
+    os.system(f"firefox https://adventofcode.com/{args.year}/day/{args.day} &")
