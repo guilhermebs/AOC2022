@@ -19,7 +19,8 @@ def download_input(year, day):
     
     response = requests.get(
         f"https://adventofcode.com/{year}/day/{day}/input",
-        cookies={"session": COOKIE}
+        cookies={"session": COOKIE},
+        headers={"User-Agent": "github.com/guilhermebs/AOC2022 by guilhermebs"}
     )
     response.raise_for_status()
 
