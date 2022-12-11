@@ -2,11 +2,11 @@ import os
 import time
 import copy
 import re
+from functools import cache
 
 
 def solve():
     input_file_contents = open(os.path.join("input", "day11")).read().rstrip()
-    #input_file_contents = open(os.path.join("input", "day11_example")).read().rstrip()
 
     monkeys = []
     items = []
@@ -18,7 +18,7 @@ def solve():
     sol_part1 = calc_monkey_business(monkeys, items, 20)
     print("Part 1:", sol_part1)
 
-    sol_part2 = calc_monkey_business(monkeys, items, 20, is_part1=False)
+    sol_part2 = calc_monkey_business(monkeys, items, 10000, is_part1=False)
     print("Part 2:", sol_part2)
 
 
@@ -47,17 +47,17 @@ def read_monkey_description(description):
 
     if operation_match.group(2) == "old":
         if operation_match.group(1) == "+":
-            operation = lambda x: x + x
+            operation = lambda x: ModSum(x, x)
         elif operation_match.group(1) == "*":
-            operation = lambda x: x * x;
+            operation = lambda x: ModMult(x, x)
         else:
             raise ValueError("Invalid operation!")
     else:
         const = int(operation_match.group(2))
         if operation_match.group(1) == "+":
-            operation = lambda x: x + const
+            operation = lambda x: ModSum(x, const)
         elif operation_match.group(1) == "*":
-            operation = lambda x: x * const
+            operation = lambda x: ModMult(x, const)
         else:
             raise ValueError("Invalid operation!")
 
@@ -82,6 +82,7 @@ class Monkey:
     def process_item(self, wlevel, is_part1=True):
         wlevel = self.operation(wlevel)
         if is_part1:
+            wlevel = wlevel.eval()
             wlevel = wlevel // 3
         if (wlevel % self.divisible_by) == 0:
             target = self.target_monkey_true
@@ -89,6 +90,45 @@ class Monkey:
             target = self.target_monkey_false
 
         return (wlevel, target)
+
+
+class ModSum:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def eval(self):
+        return self.a + self.b
+
+    def __sum__(self, other):
+        return self.eval() + other
+
+    def __mul__(self, other):
+        return self.eval() * other
+
+    @cache
+    def __mod__(self, n):
+        return (self.a % n + self.b % n) % n
+
+
+class ModMult:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def eval(self):
+        return self.a * self.b
+
+    def __sum__(self, other):
+        return self.eval() + other
+
+    def __mul__(self, other):
+        return self.eval() * other
+
+    @cache
+    def __mod__(self, n):
+        return ((self.a % n) * (self.b % n)) % n
+
 
 
 if __name__ == "__main__":
