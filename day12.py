@@ -18,33 +18,12 @@ def solve():
     n_cols = len(heights[0])
     print(n_rows, n_cols)
 
-    # A*!
-    h = []
-    start = (start_row, start_col)
-    n_steps = defaultdict(lambda : 1e6)
-    heapq.heappush(
-            h, 
-            (manhattan(start, objective), start)
+    sol_part1 = search(
+        (start_row, start_col),
+        lambda p: p == objective,
+        lambda (i, j), (ii, jj): heights[ii][jj] - heights[i][j] =< 1,
+        lambda p: manhattan(p, objective)
     )
-    n_steps[start] = 0
-    while len(h) > 0:
-        _, (i, j) = heapq.heappop(h)
-        n = n_steps[(i, j)]
-        if (i, j) == objective:
-            sol_part1 = n
-            break
-        for (ii, jj) in [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]:
-            if ii < 0 or ii >= n_rows or jj < 0 or jj >= n_cols:
-                continue
-            elif heights[ii][jj] - heights[i][j] > 1:
-                continue
-            elif n_steps[(ii, jj)] > n + 1:
-                heapq.heappush(
-                    h,
-                    (manhattan((ii, jj), objective) + n + 1, (ii, jj))
-                )
-                n_steps[(ii, jj)] = n + 1
-
     print("Part 1:", sol_part1)
 
     sol_part2 = None
@@ -62,7 +41,31 @@ def manhattan(p1, p2):
 
 
 
-#def search(start, is_end, can_walk):
+def search(start, is_end, can_go, heuristic):
+    # A*!
+    h = []
+    start_row, start_col = start
+    n_steps = defaultdict(lambda : 1e6)
+    heapq.heappush(
+            h, 
+            (heuristic(start), start)
+    )
+    n_steps[start] = 0
+    while len(h) > 0:
+        _, (i, j) = heapq.heappop(h)
+        n = n_steps[(i, j)]
+        if is_end((i, j)):
+            return n
+        for (ii, jj) in [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]:
+            if ii < 0 or ii >= n_rows or jj < 0 or jj >= n_cols:
+                continue
+            elif can_go((i, j), (ii, jj)) and  n_steps[(ii, jj)] > n + 1:
+                heapq.heappush(
+                    h,
+                    (heuristic((ii, jj)) + n + 1, (ii, jj))
+                )
+                n_steps[(ii, jj)] = n + 1
+
 
 
 
