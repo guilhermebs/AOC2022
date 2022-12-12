@@ -6,7 +6,6 @@ import time
 
 def solve():
     input_file_contents = open(os.path.join("input", "day12")).read().rstrip()
-    input_file_contents = open(os.path.join("input", "day12_test")).read().rstrip()
     heights = [[c for c in row] for row in input_file_contents.splitlines()]
     start_row, start_col = find_pos(heights, "S")
     objective = find_pos(heights, "E")
@@ -16,17 +15,21 @@ def solve():
     heights[objective[0]][objective[1]] = ord("z") - ord("a")
     n_rows = len(heights)
     n_cols = len(heights[0])
-    print(n_rows, n_cols)
 
     sol_part1 = search(
-        (start_row, start_col),
+        (start_row, start_col), n_rows, n_cols,
         lambda p: p == objective,
-        lambda (i, j), (ii, jj): heights[ii][jj] - heights[i][j] =< 1,
+        lambda p, q: heights[q[0]][q[1]] - heights[p[0]][p[1]] <= 1,
         lambda p: manhattan(p, objective)
     )
     print("Part 1:", sol_part1)
 
-    sol_part2 = None
+    sol_part2 = search(
+        objective, n_rows, n_cols,
+        lambda p: heights[p[0]][p[1]] == 0,
+        lambda p, q: heights[p[0]][p[1]] - heights[q[0]][q[1]] <= 1,
+        lambda p: heights[p[0]][p[1]]
+    )
     print("Part 2:", sol_part2)
 
 
@@ -40,14 +43,13 @@ def manhattan(p1, p2):
     return sum(abs(p - q) for p, q in zip(p1, p2))
 
 
-
-def search(start, is_end, can_go, heuristic):
+def search(start, n_rows, n_cols, is_end, can_go, heuristic):
     # A*!
     h = []
     start_row, start_col = start
-    n_steps = defaultdict(lambda : 1e6)
+    n_steps = defaultdict(lambda: 1e6)
     heapq.heappush(
-            h, 
+            h,
             (heuristic(start), start)
     )
     n_steps[start] = 0
@@ -59,14 +61,12 @@ def search(start, is_end, can_go, heuristic):
         for (ii, jj) in [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]:
             if ii < 0 or ii >= n_rows or jj < 0 or jj >= n_cols:
                 continue
-            elif can_go((i, j), (ii, jj)) and  n_steps[(ii, jj)] > n + 1:
+            elif can_go((i, j), (ii, jj)) and n_steps[(ii, jj)] > n + 1:
                 heapq.heappush(
                     h,
                     (heuristic((ii, jj)) + n + 1, (ii, jj))
                 )
                 n_steps[(ii, jj)] = n + 1
-
-
 
 
 if __name__ == "__main__":
