@@ -45,16 +45,10 @@ def solve():
 
 
 def update_blizzard(region_size, blizzard):
-    def wrap(pos):
-        wrap = [pos[0], pos[1], pos[2]]
-        for i in range(2):
-            if pos[i] >= region_size[i]:
-                wrap[i] = 0
-            elif pos[i] < 0:
-                wrap[i] = region_size[i] - 1
-        return tuple(wrap)
-
-    return [wrap((i + MOVE_DIRS[c][0], j + MOVE_DIRS[c][1], c)) for i, j, c in blizzard]
+    return [
+        ((i + MOVE_DIRS[c][0]) % region_size[0], (j + MOVE_DIRS[c][1]) % region_size[1], c)
+        for i, j, c in blizzard
+    ]
 
 
 def print_blizzard(region_size, blizzard):
